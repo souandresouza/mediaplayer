@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Player Avançado</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="media-player">
+        <div id="youtube-player"></div>
+        <div class="display" aria-live="polite">00:00 / 00:00</div> <!-- Added aria-live for accessibility -->
+        <input type="range" id="progress" min="0" max="100" value="0" aria-label="Progress"> <!-- Added aria-label -->
+        <div class="controls">
+            <div class="buttons">
+                <button id="play" aria-label="Play">▶</button> <!-- Added aria-label -->
+                <button id="pause" aria-label="Pause">❚❚</button> <!-- Added aria-label -->
+                <button id="stop" aria-label="Stop">■</button> <!-- Added aria-label -->
+            </div>
+            <div class="volume-container">
+                <span id="volume-label">100%</span>
+                <input type="range" id="volume" min="0" max="100" value="100" aria-label="Volume"> <!-- Added aria-label -->
+            </div>
+            <input type="file" id="fileInput" accept="audio/*,video/*">
+            <input type="text" id="urlInput" placeholder="Enter YouTube or TikTok URL" aria-label="Video URL">
+            <button id="loadUrl">Load Video</button>
+        </div>
+    </div>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="script.js"></script>
+</body>
+</html>
