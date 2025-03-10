@@ -76,7 +76,16 @@ playBtn.addEventListener('click', () => {
     }
 });
 
+// Add this to your existing JavaScript file
+
 fileInput.addEventListener('change', (e) => {
+    const fileName = document.getElementById('fileName');
+    if (e.target.files.length > 0) {
+        fileName.textContent = e.target.files[0].name;
+    } else {
+        fileName.textContent = 'Nenhum arquivo selecionado';
+    }
+    
     const file = e.target.files[0];
     if (file) {
         const fileType = file.type.split('/')[0];
@@ -84,6 +93,8 @@ fileInput.addEventListener('change', (e) => {
             handleLocalAudio(file);
         } else if (fileType === 'video') {
             handleLocalVideo(file);
+        } else if (fileType === 'image') {
+            handleLocalImage(file);
         }
     }
 });
@@ -160,4 +171,55 @@ function stop() {
     }
     display.textContent = '00:00 / 00:00';
     progress.value = 0;
+}
+
+
+function handleLocalImage(file) {
+    // Reset states
+    isLocalAudio = false;
+    isLocalVideo = false;
+    
+    // Stop any playing media
+    if (audioElement) {
+        audioElement.pause();
+    }
+    if (videoElement) {
+        videoElement.pause();
+    }
+    if (player) {
+        player.stopVideo();
+    }
+    
+    // Hide YouTube player
+    document.getElementById('youtube-player').style.display = 'none';
+    
+    // Create or get image container
+    let imageContainer = document.getElementById('image-container');
+    if (!imageContainer) {
+        imageContainer = document.createElement('div');
+        imageContainer.id = 'image-container';
+        document.querySelector('.media-player').insertBefore(imageContainer, display);
+    } else {
+        imageContainer.innerHTML = ''; // Clear previous image
+    }
+    
+    // Create and display the image
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.className = 'responsive-image';
+    img.onload = () => {
+        // Hide progress and controls that don't apply to images
+        progress.style.display = 'none';
+        playBtn.disabled = true;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        
+        // Update display
+        display.textContent = `${img.naturalWidth} x ${img.naturalHeight}`;
+        
+        // Show the image container
+        imageContainer.style.display = 'block';
+    };
+    
+    imageContainer.appendChild(img);
 }
