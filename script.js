@@ -80,10 +80,12 @@ playBtn.addEventListener('click', () => {
 
 fileInput.addEventListener('change', (e) => {
     const fileName = document.getElementById('fileName');
-    if (e.target.files.length > 0) {
-        fileName.textContent = e.target.files[0].name;
-    } else {
-        fileName.textContent = 'Nenhum arquivo selecionado';
+    if (fileName) {  // Check if the element exists
+        if (e.target.files.length > 0) {
+            fileName.textContent = e.target.files[0].name;
+        } else {
+            fileName.textContent = 'Nenhum arquivo selecionado';
+        }
     }
     
     const file = e.target.files[0];
@@ -93,8 +95,6 @@ fileInput.addEventListener('change', (e) => {
             handleLocalAudio(file);
         } else if (fileType === 'video') {
             handleLocalVideo(file);
-        } else if (fileType === 'image') {
-            handleLocalImage(file);
         }
     }
 });
@@ -174,52 +174,51 @@ function stop() {
 }
 
 
-function handleLocalImage(file) {
-    // Reset states
+function handleLocalVideo(file) {
     isLocalAudio = false;
-    isLocalVideo = false;
+    isLocalVideo = true;
     
-    // Stop any playing media
-    if (audioElement) {
-        audioElement.pause();
-    }
+    // Clean up existing elements
     if (videoElement) {
         videoElement.pause();
-    }
-    if (player) {
-        player.stopVideo();
+        videoElement.remove();
     }
     
     // Hide YouTube player
     document.getElementById('youtube-player').style.display = 'none';
     
-    // Create or get image container
-    let imageContainer = document.getElementById('image-container');
-    if (!imageContainer) {
-        imageContainer = document.createElement('div');
-        imageContainer.id = 'image-container';
-        document.querySelector('.media-player').insertBefore(imageContainer, display);
+    // Create video element if it doesn't exist
+    videoElement = document.createElement('video');
+    videoElement.id = 'local-video';
+    videoElement.className = 'video-player';
+    videoElement.controls = false; // We'll use our custom controls
+    videoElement.src = URL.createObjectURL(file);
+    
+    // Add video to the DOM
+    const mediaPlayer = document.querySelector('.media-player');
+    const existingVideo = document.getElementById('local-video');
+    if (existingVideo) {
+        mediaPlayer.replaceChild(videoElement, existingVideo);
     } else {
-        imageContainer.innerHTML = ''; // Clear previous image
+        mediaPlayer.insertBefore(videoElement, document.querySelector('.display'));
     }
     
-    // Create and display the image
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.className = 'responsive-image';
-    img.onload = () => {
-        // Hide progress and controls that don't apply to images
-        progress.style.display = 'none';
-        playBtn.disabled = true;
-        pauseBtn.disabled = true;
-        stopBtn.disabled = true;
-        
-        // Update display
-        display.textContent = `${img.naturalWidth} x ${img.naturalHeight}`;
-        
-        // Show the image container
-        imageContainer.style.display = 'block';
-    };
+    // Set up event listeners
+    videoElement.addEventListener('loadedmetadata', () => {
+        display.textContent = `00:00 / ${formatTime(videoElement.duration)}`;
+    });
+    videoElement.addEventListener('canplaythrough', () => {
+        videoElement.play();
+    });
+    videoElement.addEventListener('timeupdate', updateProgress);
+    videoElement.addEventListener('ended', stop);
     
-    imageContainer.appendChild(img);
-}
+    // Set volume
+    videoElement.volume = volume.value / 100;
+    
+    // Show the video element
+    videoElement.style.display = 'block';
+    videoElement.style.width = '100%';
+    videoElement.style.borderRadius = '8px';
+    videoElement.style.marginBottom = '10px';
+} // Added missing closing brace
