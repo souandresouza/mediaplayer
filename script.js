@@ -76,6 +76,16 @@ playBtn.addEventListener('click', () => {
     }
 });
 
+pauseBtn.addEventListener('click', () => {
+    if (isLocalAudio && audioElement) {
+        audioElement.pause();
+    } else if (isLocalVideo && videoElement) {
+        videoElement.pause();
+    } else if (player && player.pauseVideo) {
+        player.pauseVideo();
+    }
+});
+
 // Add this to your existing JavaScript file
 
 fileInput.addEventListener('change', (e) => {
@@ -194,6 +204,13 @@ function handleLocalVideo(file) {
     videoElement.controls = false; // We'll use our custom controls
     videoElement.src = URL.createObjectURL(file);
     
+    // Ensure proper MIME type support
+    videoElement.type = file.type;
+    
+    // Add important attributes for better compatibility
+    videoElement.preload = 'auto';
+    videoElement.playsInline = true;
+    
     // Add video to the DOM
     const mediaPlayer = document.querySelector('.media-player');
     const existingVideo = document.getElementById('local-video');
@@ -207,9 +224,21 @@ function handleLocalVideo(file) {
     videoElement.addEventListener('loadedmetadata', () => {
         display.textContent = `00:00 / ${formatTime(videoElement.duration)}`;
     });
-    videoElement.addEventListener('canplaythrough', () => {
-        videoElement.play();
+    
+    // Add error handling
+    videoElement.addEventListener('error', (e) => {
+        console.error('Video error:', videoElement.error);
+        alert(`Erro ao carregar o vídeo: ${videoElement.error ? videoElement.error.message : 'Formato não suportado'}`);
     });
+    
+    videoElement.addEventListener('canplaythrough', () => {
+        videoElement.play()
+            .catch(err => {
+                console.error('Play error:', err);
+                alert('Erro ao reproduzir o vídeo. Tente novamente.');
+            });
+    });
+    
     videoElement.addEventListener('timeupdate', updateProgress);
     videoElement.addEventListener('ended', stop);
     
@@ -219,6 +248,9 @@ function handleLocalVideo(file) {
     // Show the video element
     videoElement.style.display = 'block';
     videoElement.style.width = '100%';
+    videoElement.style.height = 'auto';
+    videoElement.style.maxHeight = '300px';
     videoElement.style.borderRadius = '8px';
     videoElement.style.marginBottom = '10px';
-} // Added missing closing brace
+    videoElement.style.backgroundColor = '#000';
+}
