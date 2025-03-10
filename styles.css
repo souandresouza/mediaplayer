@@ -181,3 +181,32 @@ body {
         font-size: 1.2em;
     }
 }
+
+.file-name {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #ccc;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+#image-container {
+    width: 100%;
+    max-height: 300px;
+    display: none;
+    margin-bottom: 15px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #222;
+}
+
+.responsive-image {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    display: block;
+}
